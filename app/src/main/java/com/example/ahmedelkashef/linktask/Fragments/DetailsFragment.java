@@ -45,13 +45,12 @@ public class DetailsFragment extends Fragment {
     private TextView description;
     ImageView like_pressed;
     private ProgressDialog progressDialog;
-   private News currentNews;
+    private News currentNews;
     CustomLayout mCustomLayout;
 
     public DetailsFragment() {
         // Required empty public constructor
     }
-
 
 
     @Override
@@ -63,7 +62,7 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState == null ) {
+        if (savedInstanceState == null) {
             currentNews = new News();
             id = getActivity().getIntent().getStringExtra("newsid");
             new FetchNewsTask().execute(id);
@@ -78,8 +77,8 @@ public class DetailsFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_details, container, false);
         initialize_data(rootView);
-        if(currentNews != null)
-        setData(currentNews , rootView);
+        if (currentNews != null)
+            setData(currentNews, rootView);
 
         like_pressed.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,26 +100,7 @@ public class DetailsFragment extends Fragment {
         return rootView;
     }
 
-    public void setData(News news,View V) {
-/*        Picasso.with(getContext()).load(news.getImageUrl()).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                titletxt.setBackgroundDrawable(new BitmapDrawable(getResources(), bitmap));
-            }
-
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-                titletxt.setBackground(errorDrawable);
-                Log.d("TAG", "FAILED");
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-                titletxt.setBackground(placeHolderDrawable);
-                Log.d("TAG", "Prepare Load");
-            }
-        });*/
-
+    public void setData(News news, View V) {
         Picasso.with(getContext()).load(news.getImageUrl()).into(mCustomLayout);
 
         titletxt.setText(news.getNewsTitle());
@@ -238,25 +218,7 @@ public class DetailsFragment extends Fragment {
             }
 
             currentNews = News;
-     /*       Picasso.with(getContext()).load(News.getImageUrl()).into(new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    titletxt.setBackgroundDrawable(new BitmapDrawable(getResources(), bitmap));
-                }
 
-                @Override
-                public void onBitmapFailed(Drawable errorDrawable) {
-                    titletxt.setBackground(errorDrawable);
-                    Log.d("TAG", "FAILED");
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-                    titletxt.setBackground(placeHolderDrawable);
-                    Log.d("TAG", "Prepare Load");
-                }
-            });
-        */
             Picasso.with(getContext()).load(News.getImageUrl()).into(mCustomLayout);
 
             titletxt.setText(News.getNewsTitle());

@@ -52,20 +52,18 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState == null || !savedInstanceState.containsKey("newsarray") )
-        {
+        if (savedInstanceState == null || !savedInstanceState.containsKey("newsarray")) {
             newsArray = new News[1];
 
             new FetchNewsTask().execute();
-        }
-        else {
+        } else {
             newsArray = (News[]) savedInstanceState.getParcelableArray("newsarray");
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArray("newsarray",newsArray);
+        outState.putParcelableArray("newsarray", newsArray);
         super.onSaveInstanceState(outState);
     }
 
@@ -77,7 +75,7 @@ public class MainFragment extends Fragment {
 
         newsListView = (ListView) rootView.findViewById(R.id.list_view_news);
 
-        if(newsArray.length !=1) {
+        if (newsArray.length != 1) {
             newsAdapter = new NewsAdapter(getActivity(), Arrays.asList(newsArray));
             newsListView.setAdapter(newsAdapter);
         }
@@ -88,8 +86,6 @@ public class MainFragment extends Fragment {
                 Intent intent = new Intent(getContext(), DetailsActivity.class);
                 intent.putExtra("newsid", selectedNews.getNid());
                 startActivity(intent);
-
-
             }
         });
 
@@ -179,7 +175,8 @@ public class MainFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();  progressDialog = new ProgressDialog(getContext());
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(getContext());
             progressDialog.setMessage("Loading Please Wait..");
             progressDialog.setIndeterminate(true);
             progressDialog.setCancelable(false);
@@ -195,7 +192,7 @@ public class MainFragment extends Fragment {
             if (News == null) {
                 Toast.makeText(getContext(), "Error in Fetching Data", Toast.LENGTH_SHORT).show();
             }
-            newsArray  = News;
+            newsArray = News;
             newsAdapter = new NewsAdapter(getActivity(), Arrays.asList(News));
             newsListView.setAdapter(newsAdapter);
 
