@@ -2,12 +2,10 @@ package com.example.ahmedelkashef.linktask.Fragments;
 
 
 import android.app.ProgressDialog;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,11 +15,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ahmedelkashef.linktask.CustomLayout;
 import com.example.ahmedelkashef.linktask.Models.News;
 import com.example.ahmedelkashef.linktask.R;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +36,7 @@ import static android.R.color.white;
 
 
 public class DetailsFragment extends Fragment {
-    private News news;
+
     private String id;
     private TextView titletxt;
     private TextView date;
@@ -47,17 +45,30 @@ public class DetailsFragment extends Fragment {
     private TextView description;
     ImageView like_pressed;
     private ProgressDialog progressDialog;
+   private News currentNews;
+    CustomLayout mCustomLayout;
 
     public DetailsFragment() {
         // Required empty public constructor
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
 
-        id = getActivity().getIntent().getStringExtra("newsid");
-        new FetchNewsTask().execute(id);
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("newskey", currentNews);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState == null ) {
+            currentNews = new News();
+            id = getActivity().getIntent().getStringExtra("newsid");
+            new FetchNewsTask().execute(id);
+        } else
+            currentNews = savedInstanceState.getParcelable("newskey");
     }
 
     @Override
@@ -67,28 +78,57 @@ public class DetailsFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_details, container, false);
         initialize_data(rootView);
+        if(currentNews != null)
+        setData(currentNews , rootView);
 
-like_pressed.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View view) {
+        like_pressed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-       if(like_pressed.getTag().toString().equals("1") )
-        {
-            like_pressed.setImageResource(R.drawable.like_clicked);
-            likes.setTextColor(getResources().getColor(holo_orange_light));
-            like_pressed.setTag("0");
-        }
-        else if ((like_pressed.getTag().toString().equals("0")))
-       {
-           like_pressed.setImageResource(R.drawable.like_unclicked);
-           likes.setTextColor(getResources().getColor(white));
-           like_pressed.setTag("1");
-       }
+                if (like_pressed.getTag().toString().equals("1")) {
+                    like_pressed.setImageResource(R.drawable.like_unclicked);
+                    likes.setTextColor(getResources().getColor(white));
+                    like_pressed.setTag("0");
+                } else if ((like_pressed.getTag().toString().equals("0"))) {
+                    like_pressed.setImageResource(R.drawable.like_clicked);
+                    likes.setTextColor(getResources().getColor(holo_orange_light));
+                    like_pressed.setTag("1");
+                }
 
-    }
-});
+            }
+        });
 
         return rootView;
+    }
+
+    public void setData(News news,View V) {
+/*        Picasso.with(getContext()).load(news.getImageUrl()).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                titletxt.setBackgroundDrawable(new BitmapDrawable(getResources(), bitmap));
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                titletxt.setBackground(errorDrawable);
+                Log.d("TAG", "FAILED");
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                titletxt.setBackground(placeHolderDrawable);
+                Log.d("TAG", "Prepare Load");
+            }
+        });*/
+
+        Picasso.with(getContext()).load(news.getImageUrl()).into(mCustomLayout);
+
+        titletxt.setText(news.getNewsTitle());
+
+        date.setText(news.getPostDate());
+        likes.setText("Likes (" + news.getLikes() + ")");
+        views.setText(news.getNumofViews() + " views");
+        description.setText(news.getItemDescription());
     }
 
     public void initialize_data(View V) {
@@ -99,11 +139,7 @@ like_pressed.setOnClickListener(new View.OnClickListener() {
         views = (TextView) V.findViewById(R.id.detail_view_txt);
         description = (TextView) V.findViewById(R.id.description_txt);
         like_pressed = (ImageView) V.findViewById(R.id.like_icon);
-        progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage("Loading Please Wait..");
-        progressDialog.setIndeterminate(true);
-        progressDialog.setCancelable(false);
-
+        mCustomLayout = (CustomLayout) V.findViewById(R.id.custom_layout);
     }
 
     public class FetchNewsTask extends AsyncTask<String, Void, News> {
@@ -185,6 +221,11 @@ like_pressed.setOnClickListener(new View.OnClickListener() {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            progressDialog = new ProgressDialog(getContext());
+            progressDialog.setMessage("Loading Please Wait..");
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+
             progressDialog.show();
         }
 
@@ -196,10 +237,11 @@ like_pressed.setOnClickListener(new View.OnClickListener() {
                 Toast.makeText(getContext(), "Error in Fetching Data", Toast.LENGTH_SHORT).show();
             }
 
-            Picasso.with(getContext()).load(News.getImageUrl()).into(new Target() {
+            currentNews = News;
+     /*       Picasso.with(getContext()).load(News.getImageUrl()).into(new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    titletxt.setBackground(new BitmapDrawable(getResources(), bitmap));
+                    titletxt.setBackgroundDrawable(new BitmapDrawable(getResources(), bitmap));
                 }
 
                 @Override
@@ -214,7 +256,8 @@ like_pressed.setOnClickListener(new View.OnClickListener() {
                     Log.d("TAG", "Prepare Load");
                 }
             });
-
+        */
+            Picasso.with(getContext()).load(News.getImageUrl()).into(mCustomLayout);
 
             titletxt.setText(News.getNewsTitle());
 
@@ -222,6 +265,7 @@ like_pressed.setOnClickListener(new View.OnClickListener() {
             likes.setText("Likes (" + News.getLikes() + ")");
             views.setText(News.getNumofViews() + " views");
             description.setText(News.getItemDescription());
+
             progressDialog.dismiss();
 
         }

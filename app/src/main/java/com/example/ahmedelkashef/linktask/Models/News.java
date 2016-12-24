@@ -1,12 +1,13 @@
 package com.example.ahmedelkashef.linktask.Models;
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by ahmedelkashef on 12/20/2016.
  */
 
-public class News implements Serializable {
+public class News implements Parcelable{
     private String NewsTitle;
     private String Nid;
     private String PostDate;
@@ -16,7 +17,36 @@ public class News implements Serializable {
     private String Likes;
     private String ItemDescription;
     private String ShareURL;
+
+    public News() {
+    }
+
     private String VideoURL;
+
+    protected News(Parcel in) {
+        NewsTitle = in.readString();
+        Nid = in.readString();
+        PostDate = in.readString();
+        ImageUrl = in.readString();
+        NewsType = in.readString();
+        NumofViews = in.readString();
+        Likes = in.readString();
+        ItemDescription = in.readString();
+        ShareURL = in.readString();
+        VideoURL = in.readString();
+    }
+
+    public static final Creator<News> CREATOR = new Creator<News>() {
+        @Override
+        public News createFromParcel(Parcel in) {
+            return new News(in);
+        }
+
+        @Override
+        public News[] newArray(int size) {
+            return new News[size];
+        }
+    };
 
     public String getVideoURL() {
         return VideoURL;
@@ -96,5 +126,24 @@ public class News implements Serializable {
 
     public void setPostDate(String postDate) {
         PostDate = postDate;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(NewsTitle);
+        parcel.writeString(Nid);
+        parcel.writeString(PostDate);
+        parcel.writeString(ImageUrl);
+        parcel.writeString(NewsType);
+        parcel.writeString(NumofViews);
+        parcel.writeString(Likes);
+        parcel.writeString(ItemDescription);
+        parcel.writeString(ShareURL);
+        parcel.writeString(VideoURL);
     }
 }

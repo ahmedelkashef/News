@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,21 +41,32 @@ public class MainFragment extends Fragment {
 
     private ListView newsListView;
     private NewsAdapter newsAdapter;
-    private News [] newsArray;
+    private News[] newsArray;
     ProgressDialog progressDialog;
 
     public MainFragment() {
         // Required empty public constructor
     }
 
+
     @Override
-    public void onStart() {
-        super.onStart();
-        progressDialog =new ProgressDialog(getContext());
-       progressDialog.setMessage("Loading Please Wait..");
-       progressDialog.setIndeterminate(true);
-      progressDialog.setCancelable(false);
-        new FetchNewsTask().execute();
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if(savedInstanceState == null || !savedInstanceState.containsKey("newsarray") )
+        {
+            newsArray = new News[1];
+
+            new FetchNewsTask().execute();
+        }
+        else {
+            newsArray = (News[]) savedInstanceState.getParcelableArray("newsarray");
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArray("newsarray",newsArray);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -63,14 +75,18 @@ public class MainFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
 
-
         newsListView = (ListView) rootView.findViewById(R.id.list_view_news);
+
+        if(newsArray.length !=1) {
+            newsAdapter = new NewsAdapter(getActivity(), Arrays.asList(newsArray));
+            newsListView.setAdapter(newsAdapter);
+        }
         newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    News selectedNews = newsArray[i];
+                News selectedNews = newsArray[i];
                 Intent intent = new Intent(getContext(), DetailsActivity.class);
-                intent.putExtra( "newsid",selectedNews.getNid());
+                intent.putExtra("newsid", selectedNews.getNid());
                 startActivity(intent);
 
 
@@ -83,20 +99,19 @@ public class MainFragment extends Fragment {
 
     public class FetchNewsTask extends AsyncTask<Void, Void, News[]> {
 
-        private final String LOG_TAG =  FetchNewsTask.class.getSimpleName();
-
+        private final String LOG_TAG = FetchNewsTask.class.getSimpleName();
 
 
         private News[] getNewsDataFromJson(String NewsJsonStr)
                 throws JSONException {
             JSONObject Newsjson = new JSONObject(NewsJsonStr);
             JSONArray jsonArray = Newsjson.getJSONArray("News");
-              newsArray = new News[jsonArray.length()];
+            newsArray = new News[jsonArray.length()];
             Gson gson = new Gson();
-            for (int i = 0 ; i<jsonArray.length() ; i++) {
+            for (int i = 0; i < jsonArray.length(); i++) {
 
                 JSONObject singleJsonObject = jsonArray.getJSONObject(i);
-                News news = gson.fromJson(singleJsonObject.toString(),News.class);
+                News news = gson.fromJson(singleJsonObject.toString(), News.class);
 
                 newsArray[i] = news;
             }
@@ -114,7 +129,7 @@ public class MainFragment extends Fragment {
 
 
                 Uri BuiltUri = Uri.parse(BASE_URL).buildUpon()
-                            .build();
+                        .build();
                 URL url = new URL(BuiltUri.toString());
                 Log.v("uri=", BuiltUri.toString());
 
@@ -164,8 +179,11 @@ public class MainFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
-           progressDialog.show();
+            super.onPreExecute();  progressDialog = new ProgressDialog(getContext());
+            progressDialog.setMessage("Loading Please Wait..");
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
         }
 
         @Override
@@ -177,10 +195,11 @@ public class MainFragment extends Fragment {
             if (News == null) {
                 Toast.makeText(getContext(), "Error in Fetching Data", Toast.LENGTH_SHORT).show();
             }
-
-            newsAdapter = new NewsAdapter(getActivity() , Arrays.asList(News));
+            newsArray  = News;
+            newsAdapter = new NewsAdapter(getActivity(), Arrays.asList(News));
             newsListView.setAdapter(newsAdapter);
-        progressDialog.dismiss();
+
+            progressDialog.dismiss();
         }
     }
 }
