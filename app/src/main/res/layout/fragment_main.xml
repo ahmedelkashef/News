@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:id="@+id/list_view_news"
         android:divider="@android:color/transparent"
-        android:dividerHeight="10.0sp"
+        android:dividerHeight="0dp"
       />
 
 </FrameLayout>

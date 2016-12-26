@@ -7,7 +7,7 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     android:layout_marginTop="16dp"
-    android:background="@drawable/custome_shape"
+    android:background="@drawable/roundedbackground"
     android:orientation="vertical"
     android:weightSum="1"
     tools:context="com.example.ahmedelkashef.linktask.Fragments.DetailsFragment">
@@ -25,9 +25,9 @@
             <com.example.ahmedelkashef.linktask.CustomLayout
                 android:id="@+id/custom_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-
-                android:layout_weight="0.5">
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:layout_gravity="fill">
 
                 <TextView
                     android:id="@+id/detail_title_txt"
